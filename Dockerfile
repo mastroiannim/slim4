@@ -1,9 +1,7 @@
 FROM composer
 WORKDIR /app
+COPY . /app
 RUN apk update; \
     apk upgrade;
 RUN docker-php-ext-install pdo pdo_mysql
-COPY . /app
-RUN composer install
-#ENTRYPOINT "composer dump-autoload -o" && /bin/bash
-#ENTRYPOINT "composer install" && /bin/bash
+CMD bash -c "composer install && php -S [::]:80 -t /app/public"
