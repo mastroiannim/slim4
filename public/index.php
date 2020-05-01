@@ -1,5 +1,7 @@
 <?php
 use DI\Container;
+use DI\ContainerBuilder;
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -14,19 +16,18 @@ use MyApp\Controller\DBInitAction;
 use MyApp\Controller\Home\HomeController;
 use MyApp\Controller\Hello\HelloController;
 
+
 require __DIR__ . '/../vendor/autoload.php';
 
-// Set up settings
-$injectSettingsIn = require  __DIR__ . '/../conf/settings.php';
-
-// Create Container using PHP-DI
-$container = new Container();
+// Set up dependencies
+$containerBuilder = new ContainerBuilder();
 
 // Inject Services
-$injectSettingsIn($container);
+$containerBuilder->addDefinitions(__DIR__ . '/../conf/di-definition.php');
 
-// Configure the application via container
-$app = AppFactory::createFromContainer($container);
+// Create app
+AppFactory::setContainer($containerBuilder->build());
+$app = AppFactory::create();
 
 /**
  * The routing middleware should be added earlier than the ErrorMiddleware
@@ -68,7 +69,6 @@ $app->get('/hello/{id}', HelloController::class . ':get');
 $app->put('/hello', HelloController::class . ':put');
 
 
-
 $addHeaderMiddleware = function (Request $request, RequestHandler $handler) {
     $response = $handler->handle($request);
     return $response->withAddedHeader('mio', 'test');
@@ -79,7 +79,7 @@ $removeHeaderMiddleware = function (Request $request, RequestHandler $handler) {
     return $response->withoutHeader('mio');
 };
 
-$app->add(new First($container));
+$app->add(new First());
 $app->add($addHeaderMiddleware);
 $app->add($removeHeaderMiddleware);
 

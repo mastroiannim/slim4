@@ -10,12 +10,6 @@ use Psr\Container\ContainerInterface;
 class First
 {
 
-    private $container;
-
-    public function __construct(ContainerInterface $container) {
-        $this->container = $container;
-    }
-
     /**
      * Example middleware invokable class
      *
@@ -26,9 +20,6 @@ class First
      */
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
-        //get db Service
-        $this->container->get('db');
-
         $uriInterface = $request->getUri();
         $uri = $uriInterface->getPath();
         $test = substr($uri, -1);
